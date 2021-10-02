@@ -15,9 +15,6 @@ class SqliteHelper {
     _db = await openDatabase(p.join(_dbDir, _dbName),
         onCreate: (database, version) {
       // version1
-      
-
-      
 
       // create table tbl_chatlog(
       //     chatId TEXT PRIMARY KEY,
@@ -34,7 +31,7 @@ class SqliteHelper {
       //     voiceLength INTEGER,
       //     voicePath TEXT);
       //alter table tbl_chatLog add column locaddress TEXT;
-      var batch=database.batch();
+      var batch = database.batch();
       batch.execute('''
       create table tbl_curlogin(
         loginId TEXT PRIMARY KEY,
@@ -77,17 +74,15 @@ class SqliteHelper {
       print('old v is $v1, new version is $v2');
       var batch = database.batch();
       // batch.execute('''
-        
+
       //   alter table tbl_chatLog add column imgHeight NUMERIC;
-        
-        
+
       // ''');
       batch.execute("alter table tbl_chatLog add column imgWidth NUMERIC;");
       batch.execute("alter table tbl_chatLog add column imgHeight NUMERIC");
       batch.execute("alter table tbl_chatLog add column title TEXT;");
       batch.execute("alter table tbl_chatLog add column locationImg TEXT;");
       batch.commit();
-
     }, version: 22);
   }
 
@@ -116,15 +111,16 @@ class SqliteHelper {
     await _db.close();
   }
 
+  //通过用户id得到用户信息
   getUserInfo(String userId) async {
     await initDB();
     Tuser userModel;
     var user =
         await _db.query('tbl_user', where: "userId=?", whereArgs: [userId]);
     if (user.length > 0) {
-      userModel = Tuser.fromJson(user.first);
+      userModel = Tuser.fromJson(user.first); //记录的第一个
     } else {
-      userModel = await addNewUser(userId);
+      userModel = await addNewUser(userId); //若不存在,则添加
     }
     return userModel;
   }
@@ -151,9 +147,10 @@ class SqliteHelper {
     await _db.close();
   }
 
+  //得到登录者最后的聊天记录
   getLatestChatLogForEachInstance(String loginId) async {
     await initDB();
-    List<TChatLog> chats = List<TChatLog>();
+    List<TChatLog> chats = <TChatLog>[]; //chats
     var result = await _db.rawQuery('''
     select tchat.insertTime,tchat.content,tchat.contentType,tchat.otherId
     from (
@@ -171,37 +168,41 @@ class SqliteHelper {
       int i = 0;
       for (i = 0; i < result.length; i++) {
         TChatLog chatLog = TChatLog.fromJson(result[i]);
-        await addNewUser(chatLog.otherId);
-        chats.add(chatLog);
+        await addNewUser(chatLog.otherId); //把
+        chats.add(chatLog); //
       }
     }
     _db.close();
     return chats;
   }
 
+  //通过登陆者和对方id获取聊天记录,返回chatModels
   getChatRecordsByUserId(String loginId, String otherId, int offset) async {
     await initDB();
     int eachPage = 30;
     // int from = pageId * eachPage;
     // int to = from + eachPage - 1;
-    List<ChatModel> chatModels = List<ChatModel>();
     var chats = await _db.query('tbl_chatLog',
         where: 'loginId=? and otherId=?',
         whereArgs: [loginId, otherId],
         orderBy: 'insertTime desc',
         limit: eachPage,
         offset: offset);
-    int i=0;
-    for(i=0;i<chats.length;i++){
-      ChatModel model=ChatModel();
-      model.contentModel=TChatLog.fromJson(chats[i]);
-      Tuser user=await addNewUser(model.contentModel.fromUser);
-      model.user=user;
+
+    List<ChatModel> chatModels = <ChatModel>[]; //新建ChatModels,会返回
+
+    for (int i = 0; i < chats.length; i++) {
+      ChatModel model = ChatModel(); //新建chatModel
+      model.contentModel =
+          TChatLog.fromJson(chats[i]); //设置model的contentModel(TchatLog类型)
+      Tuser user = await addNewUser(model.contentModel.fromUser); //
+      model.user = user; //设置model的user
       chatModels.add(model);
     }
     return chatModels;
   }
 
+  //添加新用户
   addNewUser(String userId) async {
     await initDB();
     Tuser userModel;
@@ -237,17 +238,14 @@ class SqliteHelper {
     }
   }
 
-
-  getAllUsers()async{
+  getAllUsers() async {
     await initDB();
-    List<Tuser> users=List<Tuser>();
-    var result=await _db.query('tbl_user');
-    result.forEach((item){
-      Tuser user=Tuser.fromJson(item);
+    List<Tuser> users = <Tuser>[];
+    var result = await _db.query('tbl_user');
+    result.forEach((item) {
+      Tuser user = Tuser.fromJson(item);
       users.add(user);
     });
     return users;
   }
-
-  
 }

@@ -13,32 +13,32 @@ class ChatListProvider with ChangeNotifier {
   List<TChatLog> chats;
   List<Tuser> users;
   List<ChatModel> chatModels;
-
+  //刷新聊天列表
   refreshChatList(String loginId) async {
-    chatModels=List<ChatModel>();
-    List<TChatLog> chats =
-        await SqliteHelper().getLatestChatLogForEachInstance(loginId);
+    chatModels = <ChatModel>[];
+    List<TChatLog> chats = await SqliteHelper()
+        .getLatestChatLogForEachInstance(loginId); //得到登录者最后的聊天记录
     // chats.forEach((item) async {
     //   await genChatModel(item);
     // });
-    int i=0;
-    for(i=0;i<chats.length;i++){
+    int i = 0;
+    for (i = 0; i < chats.length; i++) {
       await genChatModel(chats[i]);
     }
-    
+
     notifyListeners();
   }
 
-  genChatModel(TChatLog chatLog)async {
-    Tuser user=await SqliteHelper().getUserInfo(chatLog.otherId);
-    ChatModel model=ChatModel(contentModel: chatLog,user: user);
+  genChatModel(TChatLog chatLog) async {
+    Tuser user = await SqliteHelper().getUserInfo(chatLog.otherId);
+    ChatModel model = ChatModel(contentModel: chatLog, user: user);
     chatModels.add(model);
   }
 
   ChatListProvider(String loginId) {
-    chats = List<TChatLog>();
-    users = List<Tuser>();
-     chatModels=List<ChatModel>();
+    chats = <TChatLog>[];
+    users = <Tuser>[];
+    chatModels = <ChatModel>[];
     refreshChatList(loginId);
     // data.forEach((item) {
     //   users.add(UserModel(
