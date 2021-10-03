@@ -111,7 +111,7 @@ class SqliteHelper {
     await _db.close();
   }
 
-  //通过用户id得到用户信息
+  ///通过用户id得到用户,返回Tuser
   getUserInfo(String userId) async {
     await initDB();
     Tuser userModel;
@@ -147,7 +147,7 @@ class SqliteHelper {
     await _db.close();
   }
 
-  //得到登录者最后的聊天记录
+  ///数据库中得到登录者最后的聊天记录,返回'TChatLog[]'
   getLatestChatLogForEachInstance(String loginId) async {
     await initDB();
     List<TChatLog> chats = <TChatLog>[]; //chats
@@ -161,14 +161,14 @@ class SqliteHelper {
     and tchatlast.otherId=tchat.otherId
     and tchat.insertTime = tchatlast.lastTime where grpId is null 
     order by tchatlast.lastTime desc;
-    ''', [loginId]);
+    ''', [loginId]); //!grpId is null,是不是没有群?
 
     if (result.length > 0) {
       // result.forEach((item) async {});
       int i = 0;
       for (i = 0; i < result.length; i++) {
         TChatLog chatLog = TChatLog.fromJson(result[i]);
-        await addNewUser(chatLog.otherId); //把
+        await addNewUser(chatLog.otherId); //把对方也添加到数据库,返回Tuser
         chats.add(chatLog); //
       }
     }
@@ -176,7 +176,7 @@ class SqliteHelper {
     return chats;
   }
 
-  //通过登陆者和对方id获取聊天记录,返回chatModels
+  ///通过登陆者和对方id获取每页30条聊天记录,返回chatModels
   getChatRecordsByUserId(String loginId, String otherId, int offset) async {
     await initDB();
     int eachPage = 30;
@@ -202,7 +202,7 @@ class SqliteHelper {
     return chatModels;
   }
 
-  //添加新用户
+  ///添加新用户,返回Tuser.数据库有,直接返回,否者新建一个并保存到数据库
   addNewUser(String userId) async {
     await initDB();
     Tuser userModel;

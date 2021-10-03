@@ -13,31 +13,38 @@ import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
 class GoSocketProvider with ChangeNotifier {
-  IOWebSocketChannel channel;
+  IOWebSocketChannel channel; //!
   String socketUrl = "ws://192.168.0.3:5000/socket";
-  List<ChatModel> records = <ChatModel>[];
+  List<ChatModel> records = <ChatModel>[]; //!生成的chatModel list
   var connId;
-  String ava1;
-  String ava2;
-  IOWebSocketChannel conn; //连接
+  String ava1; //FIXME 没有用
+  String ava2; //FIXME 没有用
+  IOWebSocketChannel conn; //FIXME 有了channel,这个conn没有用!连接
   String loginId;
   String toUser;
-  ChatRecordsProvider chatRecordsProvider; //聊天记录provider
-  ChatListProvider chatListProvider;
-  GoSocketProvider(String userId) {
-    loginId = userId;
-    connWebSocket(userId);
-  }
 
+  ///聊天记录provider,通过id获取每页30条聊天记录(chatModel)或者插入新记录
+  ChatRecordsProvider chatRecordsProvider;
+
+  ///读取数据库,刷新List[ChatModel]
+  ChatListProvider chatListProvider;
+
+  GoSocketProvider(String userId) {
+    loginId = userId; //设置登录id
+    connWebSocket(userId); //连接websocket
+  }
+  //更新chatListProvider
   updateChatListProvider(ChatListProvider provider) {
     chatListProvider = provider;
   }
 
+  //更新chatRecordsProvider
   updateChatDetail(ChatRecordsProvider provider) {
-    chatRecordsProvider = provider;
+    chatRecordsProvider = provider; //!updateChatDetail,使用前并没赋值
     // notifyListeners();
   }
 
+  //FIXME 没有用
   setConn(connection) {
     conn = connection;
     notifyListeners();
@@ -48,7 +55,7 @@ class GoSocketProvider with ChangeNotifier {
     ava1 = 'https://pic2.zhimg.com/v2-d2f3715564b0b40a8dafbfdec3803f97_is.jpg';
     ava2 = 'https://pic4.zhimg.com/v2-0edac6fcc7bf69f6da105fe63268b84c_is.jpg';
 
-    channel = IOWebSocketChannel.connect("$socketUrl?userId=$userId");
+    channel = IOWebSocketChannel.connect("$socketUrl?userId=$userId"); //用户id登录
     channel.stream.listen((msg) async {
       // print(msg);
       var mapResult = json.decode(msg);
@@ -73,13 +80,13 @@ class GoSocketProvider with ChangeNotifier {
           ChatModel chatModel = ChatModel(contentModel: chatLog);
           chatModel.user = user; //NOTE可以合并到初始值
           chatModel.contentModel = chatLog; //NOTE可以合并到初始值
-          //
-          if (chatRecordsProvider != null &&
+          //!获取个人对话记录30条chatmodel
+          if (chatRecordsProvider != null && //!updateChatDetail,使用前并没赋值
               chatRecordsProvider?.ifDisposed != true) {
-            chatRecordsProvider
-                .updateChatRecordsInChat(chatModel); //添加到chatRecordsProvider
+            chatRecordsProvider.updateChatRecordsInChat(
+                chatModel); //插入最新的对话到chatRecordsProvider的记录里的chatmodel 列表
           }
-
+          //读取最近记录,刷新chatmodel列表
           chatListProvider.refreshChatList(loginId);
           break;
         default:

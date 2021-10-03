@@ -1,15 +1,16 @@
 package socket
 
 import (
-	"com.todother/DataAccess"
-	"com.todother/DataEntity"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
+
+	"com.todother/DataAccess"
+	"com.todother/DataEntity"
 	"github.com/gorilla/websocket"
 	"github.com/kataras/iris/v12"
 	tsgutils "github.com/typa01/go-utils"
-	"net/http"
-	"time"
 )
 
 func RunWebSocket(app *iris.Application) {
@@ -75,7 +76,7 @@ func (c *Client) ReadIndMessage() {
 	for {
 		fmt.Println("read msg")
 		_, msg, err := c.Client.ReadMessage()
-		fmt.Sprintf("read in msg ,%s", string(msg))
+		fmt.Printf("read in msg ,%s", string(msg))
 		var receiveMsg ReceiveMsgType
 		if err != nil || len(msg) == 0 {
 			fmt.Println(err)
@@ -119,7 +120,7 @@ func NewSocketClient(ctx iris.Context) {
 	returnConn := DataEntity.ReturnConn{ConnId: connId}
 	connJson, _ := json.Marshal(&returnConn)
 	returnValue := DataEntity.SocketReturnValue{
-		"onConn", string(connJson),
+		CallbackName: "onConn", JsonResponse: string(connJson),
 	}
 	var receiveMsg ReceiveMsgType
 	receiveMsg.ToUser = connId

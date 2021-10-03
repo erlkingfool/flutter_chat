@@ -9,37 +9,39 @@ import 'package:chat_demo/Tools/sqliteHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+///读取数据库,获取最近聊天记录,生成并刷新到List[ChatModel]
 class ChatListProvider with ChangeNotifier {
-  List<TChatLog> chats;
-  List<Tuser> users;
-  List<ChatModel> chatModels;
-  //刷新聊天列表
+  List<TChatLog> chats; //FIXME 没有用
+  List<Tuser> users; //FIXME 没有用
+  List<ChatModel> chatModels; //!!
+  ///读取数据库,刷新聊天列表
   refreshChatList(String loginId) async {
-    chatModels = <ChatModel>[];
+    chatModels = <ChatModel>[]; //初始化
     List<TChatLog> chats = await SqliteHelper()
-        .getLatestChatLogForEachInstance(loginId); //得到登录者最后的聊天记录
+        .getLatestChatLogForEachInstance(loginId); //数据库中得到登录者最后的聊天记录
     // chats.forEach((item) async {
     //   await genChatModel(item);
     // });
     int i = 0;
     for (i = 0; i < chats.length; i++) {
-      await genChatModel(chats[i]);
+      await genChatModel(chats[i]); //
     }
-
     notifyListeners();
   }
 
+  ///chatlog转chatModel,并添加到chatModels中去
   genChatModel(TChatLog chatLog) async {
-    Tuser user = await SqliteHelper().getUserInfo(chatLog.otherId);
+    Tuser user = await SqliteHelper().getUserInfo(chatLog.otherId); //得到对方
     ChatModel model = ChatModel(contentModel: chatLog, user: user);
-    chatModels.add(model);
+    chatModels.add(model); //!添加到chatmodels
   }
 
+  ///!构造函数,带loginId
   ChatListProvider(String loginId) {
     chats = <TChatLog>[];
     users = <Tuser>[];
-    chatModels = <ChatModel>[];
-    refreshChatList(loginId);
+    chatModels = <ChatModel>[]; //初始化
+    refreshChatList(loginId); //刷新
     // data.forEach((item) {
     //   users.add(UserModel(
     //       avatarUrl: item['avatar_url'],
@@ -65,6 +67,7 @@ class ChatListProvider with ChangeNotifier {
     // });
   }
 
+  ///测试用的随机时间,显示是间隔了多久
   String genRandomTime() {
     int rand = Random().nextInt(1000000000);
     DateTime now = DateTime.now();
@@ -84,6 +87,7 @@ class ChatListProvider with ChangeNotifier {
     // return randTime.toString();
   }
 
+  ///FIXME 测试数据,没有使用
   List data = [
     {
       "id": "2149cbd6f1fbd070ff9045e648764ab6",
