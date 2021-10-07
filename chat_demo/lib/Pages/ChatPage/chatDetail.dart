@@ -29,7 +29,8 @@ class DetailPage extends StatelessWidget {
       {Key key,
       @required this.webRTCProvider,
       @required this.goSocketProvider,
-      @required this.otherId,@required this.chatListProvider})
+      @required this.otherId,
+      @required this.chatListProvider})
       : super(key: key);
   final WebRTCProvider webRTCProvider;
   final GoSocketProvider goSocketProvider;
@@ -49,7 +50,7 @@ class DetailPage extends StatelessWidget {
         Provider.of<GlobalDataProvider>(context);
     ChatRecordsProvider chatRecordsProvider =
         Provider.of<ChatRecordsProvider>(context);
-    goSocketProvider.updateChatDetail(chatRecordsProvider);
+    goSocketProvider.updateChatDetail(chatRecordsProvider); //!
     // goSocketProvider.updateChatListProvider(chatListProvider);
     // if (provider == null || provider.conn == null || provider.connId == null) {
     //   return Center(

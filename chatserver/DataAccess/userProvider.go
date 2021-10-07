@@ -1,11 +1,13 @@
 package DataAccess
 
 import (
+	"fmt"
+
 	"com.todother/DBHelper"
 	"com.todother/DataEntity"
-	"fmt"
 )
 
+///userId得到用户
 func GetUserInfo(userId string) *DataEntity.Tbl_User {
 	db := DBHelper.NewInstance()
 	defer db.Close()

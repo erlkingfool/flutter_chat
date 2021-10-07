@@ -7,11 +7,12 @@ part 'chatModel.g.dart';
 
 @JsonSerializable()
 
-class ChatModel{
+///相当于会话
+class ChatModel {
   Tuser user;
   TChatLog contentModel;
 
-  ChatModel({this.user,this.contentModel});
+  ChatModel({this.user, this.contentModel});
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
       _$ChatModelFromJson(json);

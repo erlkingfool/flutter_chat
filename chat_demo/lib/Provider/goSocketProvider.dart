@@ -28,7 +28,7 @@ class GoSocketProvider with ChangeNotifier {
 
   ///读取数据库,刷新List[ChatModel]
   ChatListProvider chatListProvider;
-
+  //!构造函数
   GoSocketProvider(String userId) {
     loginId = userId; //设置登录id
     connWebSocket(userId); //连接websocket
@@ -56,13 +56,16 @@ class GoSocketProvider with ChangeNotifier {
     ava2 = 'https://pic4.zhimg.com/v2-0edac6fcc7bf69f6da105fe63268b84c_is.jpg';
 
     channel = IOWebSocketChannel.connect("$socketUrl?userId=$userId"); //用户id登录
+
+    //监听消息
     channel.stream.listen((msg) async {
       // print(msg);
       var mapResult = json.decode(msg);
       GoReceiveMsgModel receiveMsgModel = GoReceiveMsgModel.fromJson(mapResult);
       switch (receiveMsgModel.callbackName) {
+        //消息类型
         case "onConn":
-          connId = jsonDecode(receiveMsgModel.jsonResponse)["connId"];
+          connId = jsonDecode(receiveMsgModel.jsonResponse)["connId"]; //传回来id
           notifyListeners();
           break;
         case "onReceiveMsg": //收到消息
@@ -84,9 +87,9 @@ class GoSocketProvider with ChangeNotifier {
           if (chatRecordsProvider != null && //!updateChatDetail,使用前并没赋值
               chatRecordsProvider?.ifDisposed != true) {
             chatRecordsProvider.updateChatRecordsInChat(
-                chatModel); //插入最新的对话到chatRecordsProvider的记录里的chatmodel 列表
+                chatModel); //插入最新的对话到chatRecordsProvider的记录里的chatmodel列表
           }
-          //读取最近记录,刷新chatmodel列表
+          //!读取最近记录,刷新chatmodel列表
           chatListProvider.refreshChatList(loginId);
           break;
         default:
@@ -100,6 +103,7 @@ class GoSocketProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  ///没有使用?
   invoke(String methodName, {Map<String, Object> args}) {
     args = args ?? Map<String, Object>();
     if (channel != null && channel.stream != null) {
@@ -115,6 +119,7 @@ class GoSocketProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
+  ///发送消息
   sendMessage(msg, from, to, contentType) {
     // records.add(ChatRecord(
     //     content: msg, avatarUrl: ava1, sender: SENDER.SELF, chatType: 0));
@@ -124,10 +129,11 @@ class GoSocketProvider with ChangeNotifier {
     // ]);
     channel.sink.add(jsonEncode(SendMsgTemplate(
             fromUser: from, toUser: to, content: msg, contentType: contentType)
-        .toJson()));
+        .toJson())); //FIXME 发送消息json类型,可以用TchatLog.toJson优化?内容差异很大?可以让生成的Json中没有的数据不要生成.
+
     TChatLog chatLog = TChatLog(
         fromUser: from, toUser: to, content: msg, contentType: contentType);
-    SqliteHelper().insertChatRecord(chatLog, loginId);
+    SqliteHelper().insertChatRecord(chatLog, loginId); //消息插入数据库,TchatLog类型
     notifyListeners();
   }
 

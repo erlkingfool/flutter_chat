@@ -33,7 +33,7 @@ class ChatListProvider with ChangeNotifier {
   genChatModel(TChatLog chatLog) async {
     Tuser user = await SqliteHelper().getUserInfo(chatLog.otherId); //得到对方
     ChatModel model = ChatModel(contentModel: chatLog, user: user);
-    chatModels.add(model); //!添加到chatmodels
+    chatModels.add(model); //!添加到chatmodels 会有重复的人哦!?
   }
 
   ///!构造函数,带loginId

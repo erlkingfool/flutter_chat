@@ -12,7 +12,7 @@ class ChatRecordsProvider with ChangeNotifier {
   ChatRecordsProvider(String loginUser, String toUser) {
     loginId = loginUser;
     otherId = toUser;
-    getChatRecordsByUserId(); //!
+    getChatRecordsByUserId(); //!初始化时候就得到了
   }
 
   //通过id获取每页30条聊天记录,返回的是<chatModel>[]

@@ -136,12 +136,11 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
       darkTheme: ThemeData.dark(),
       themeMode:
           themeProvider.lightMode == 0 ? ThemeMode.light : ThemeMode.dark,
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(builder: (_)=>WebRTCProvider(context),)
-        ],
-        child: MainPage()
-      ),
+      home: MultiProvider(providers: [
+        ChangeNotifierProvider(
+          builder: (_) => WebRTCProvider(context),
+        )
+      ], child: MainPage()),
     );
   }
 }
@@ -206,9 +205,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     GlobalDataProvider globalDataProvider =
         Provider.of<GlobalDataProvider>(context);
-    GoSocketProvider goSocketProvider = Provider.of<GoSocketProvider>(context);
+    GoSocketProvider goSocketProvider =
+        Provider.of<GoSocketProvider>(context); //!
     WebRTCProvider webRTCProvider = Provider.of<WebRTCProvider>(context);
-    FriendsProvider friendsProvider=Provider.of<FriendsProvider>(context);
+    FriendsProvider friendsProvider = Provider.of<FriendsProvider>(context);
 
     prefs = themeProvider.sharedPreferences;
     return Scaffold(
